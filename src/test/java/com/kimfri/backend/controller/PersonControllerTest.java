@@ -1,37 +1,55 @@
 package com.kimfri.backend.controller;
 
 import com.kimfri.backend.service.IPersonService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
 class PersonControllerTest {
 
+  @InjectMocks
+  PersonController personController;
+
   @Mock
   IPersonService iPersonService;
 
-  @Autowired
-  PersonController personController;
+  private MockMvc mockMvc;
+
+  //https://github.com/TechPrimers/test-controller-example
+
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.standaloneSetup(personController).build();
+  }
+  @Test
+  void kallekula() throws Exception {
+    mockMvc.perform(get("/kalle"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Hello"));
+  }
 
   @Test
-  void getPersons() {
-    when(iPersonService.getAllPersonNames()).thenReturn(Arrays.asList("kalle"));
-    final ResponseEntity<List<String>> persons = personController.getPersons();
-    System.err.println("Size of responseBody " + persons.getBody().size());
-    System.err.println("Code: " + persons.getStatusCode().toString());
+  void pelle() throws Exception {
+    when(iPersonService.getAllPersonNames()).thenReturn(Arrays.asList("apa", "bepa"));
+    mockMvc.perform(get("/pelle"))
+        .andExpect(status().isOk());
+
+    verify(iPersonService).getAllPersonNames();
   }
 }
